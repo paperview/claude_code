@@ -218,9 +218,9 @@ defmodule ClaudeCode.Hook.OutputTest do
   end
 
   describe "PermissionDecision.Allow.to_wire/1" do
-    test "basic allow" do
+    test "basic allow always emits updatedInput (CLI Zod requires it)" do
       result = Allow.to_wire(%Allow{})
-      assert result == %{"behavior" => "allow"}
+      assert result == %{"behavior" => "allow", "updatedInput" => %{}}
     end
 
     test "allow with updated_input" do
@@ -242,6 +242,7 @@ defmodule ClaudeCode.Hook.OutputTest do
         })
 
       assert result["behavior"] == "allow"
+      assert result["updatedInput"] == %{}
       assert result["updatedPermissions"] == perms
     end
 
@@ -259,9 +260,9 @@ defmodule ClaudeCode.Hook.OutputTest do
   end
 
   describe "PermissionDecision.Deny.to_wire/1" do
-    test "basic deny" do
+    test "basic deny always emits message (CLI Zod requires it)" do
       result = Deny.to_wire(%Deny{})
-      assert result == %{"behavior" => "deny"}
+      assert result == %{"behavior" => "deny", "message" => ""}
     end
 
     test "deny with message" do
@@ -286,13 +287,13 @@ defmodule ClaudeCode.Hook.OutputTest do
       assert result["interrupt"] == true
     end
 
-    test "deny with only interrupt" do
+    test "deny with only interrupt still emits empty message" do
       result =
         Deny.to_wire(%Deny{interrupt: true})
 
       assert result["behavior"] == "deny"
       assert result["interrupt"] == true
-      refute Map.has_key?(result, "message")
+      assert result["message"] == ""
     end
   end
 
@@ -324,7 +325,7 @@ defmodule ClaudeCode.Hook.OutputTest do
   describe "PermissionDecision standalone (can_use_tool)" do
     test "allow via Output.to_wire" do
       result = Output.to_wire(%Allow{})
-      assert result == %{"behavior" => "allow"}
+      assert result == %{"behavior" => "allow", "updatedInput" => %{}}
     end
 
     test "deny via Output.to_wire" do

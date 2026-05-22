@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **`:can_use_tool` callback returning bare `:allow` or unmessaged `:deny` no longer triggers CLI `ZodError`** — `PermissionDecision.Allow.to_wire/1` now always emits `"updatedInput"` (defaulting to `%{}` when nil), and `PermissionDecision.Deny.to_wire/1` now always emits `"message"` (defaulting to `""` when nil). The Claude CLI's permission-response schema (Zod union) treats both fields as required on their respective arms, so omitting them caused every tool call routed through `can_use_tool` to fail validation. Verified against CLI 2.1.76.
+
 ## [0.36.3] - 2026-03-30 | CC 2.1.76
 
 ### Fixed
