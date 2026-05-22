@@ -24,7 +24,6 @@ defmodule ClaudeCode.Hook.PermissionDecision.Deny do
     # `message` is required by the CLI's permission-response schema (Zod union
     # expects a string on the "deny" arm). Default to "" when the callback
     # didn't supply a reason.
-    %{"behavior" => "deny", "message" => o.message || ""}
-    |> Output.maybe_put("interrupt", o.interrupt)
+    Output.maybe_put(%{"behavior" => "deny", "message" => o.message || ""}, "interrupt", o.interrupt)
   end
 end

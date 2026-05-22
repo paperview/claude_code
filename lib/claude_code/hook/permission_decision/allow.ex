@@ -28,7 +28,10 @@ defmodule ClaudeCode.Hook.PermissionDecision.Allow do
     # `updatedInput` is required by the CLI's permission-response schema (Zod
     # union expects it on the "allow" arm). Default to %{} when the callback
     # didn't supply a replacement input.
-    %{"behavior" => "allow", "updatedInput" => o.updated_input || %{}}
-    |> Output.maybe_put("updatedPermissions", o.updated_permissions)
+    Output.maybe_put(
+      %{"behavior" => "allow", "updatedInput" => o.updated_input || %{}},
+      "updatedPermissions",
+      o.updated_permissions
+    )
   end
 end
