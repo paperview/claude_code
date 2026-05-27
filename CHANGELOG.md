@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.4] - 2026-05-27 | CC 2.1.76
+
 ### Fixed
 
 - **Streams now halt on terminal AssistantMessage errors** — When the CLI encounters an unrecoverable error (rate limit, auth failure, billing), it previously entered an infinite loop emitting synthetic message pairs because the stream only halted on `ResultMessage`. The stream now detects `AssistantMessage` with a non-nil error field and synthesizes a `ResultMessage` with `is_error: true`, so `query/2`, `final_text/1`, and `collect/1` all handle the error correctly. ([ce727de])
