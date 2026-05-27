@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **`:can_use_tool` callback returning bare `:allow` or unmessaged `:deny` no longer triggers CLI `ZodError`** — `PermissionDecision.Allow.to_wire/1` now always emits `"updatedInput"` (defaulting to `%{}` when nil), and `PermissionDecision.Deny.to_wire/1` now always emits `"message"` (defaulting to `""` when nil). The Claude CLI's permission-response schema (Zod union) treats both fields as required on their respective arms, so omitting them caused every tool call routed through `can_use_tool` to fail validation. Verified against CLI 2.1.76.
+- **Streams now halt on terminal AssistantMessage errors** — When the CLI encounters an unrecoverable error (rate limit, auth failure, billing), it previously entered an infinite loop emitting synthetic message pairs because the stream only halted on `ResultMessage`. The stream now detects `AssistantMessage` with a non-nil error field and synthesizes a `ResultMessage` with `is_error: true`, so `query/2`, `final_text/1`, and `collect/1` all handle the error correctly. ([ce727de])
+- **`:can_use_tool` callback returning bare `:allow` or unmessaged `:deny` no longer triggers CLI `ZodError`** — `PermissionDecision.Allow.to_wire/1` now always emits `"updatedInput"` (defaulting to `%{}` when nil), and `PermissionDecision.Deny.to_wire/1` now always emits `"message"` (defaulting to `""` when nil). The Claude CLI's permission-response schema (Zod union) treats both fields as required on their respective arms, so omitting them caused every tool call routed through `can_use_tool` to fail validation. Verified against CLI 2.1.76. ([c60799c])
 
 ## [0.36.3] - 2026-03-30 | CC 2.1.76
 
