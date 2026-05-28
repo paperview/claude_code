@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.5] - 2026-05-28 | CC 2.1.76
+
 ### Fixed
 
 - **Non-map JSON from CLI no longer crashes the session** — When the CLI emits non-map JSON values (booleans, arrays, numbers, strings) on stdout — e.g. during a hook callback Zod validation error — the adapter now logs and drops the invalid chunk instead of crashing the Port GenServer with a `FunctionClauseError`. Sessions continue normally. ([8d30c19])
