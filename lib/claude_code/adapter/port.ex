@@ -557,9 +557,14 @@ defmodule ClaudeCode.Adapter.Port do
 
   defp process_line("", state), do: state
 
+  # The CLI may emit non-map JSON values (booleans, arrays, numbers, strings) on
+  # stdout when, for example, a hook callback fails and a Zod schema validation
+  # error is printed alongside the normal stream-JSON output. Filter those out
+  # here so they never reach `Control.classify/1` (which is spec'd to take a map)
+  # or `handle_sdk_message/2` (whose clauses index with `json["type"]`).
   defp process_line(line, state) do
     case Jason.decode(line) do
-      {:ok, json} ->
+      {:ok, json} when is_map(json) ->
         case Control.classify(json) do
           {:control_response, msg} ->
             handle_control_response(msg, state)
@@ -573,6 +578,10 @@ defmodule ClaudeCode.Adapter.Port do
           {:message, json_msg} ->
             handle_sdk_message(json_msg, state)
         end
+
+      {:ok, non_map} ->
+        Logger.warning("Dropping non-map CLI output: #{inspect(non_map)}")
+        state
 
       {:error, _} ->
         Logger.debug("Non-JSON CLI output: #{String.slice(line, 0, 500)}")
