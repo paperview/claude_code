@@ -34,6 +34,7 @@ defmodule ClaudeCode.CLI.Parser do
   alias ClaudeCode.Message.SystemMessage.CompactBoundary
   alias ClaudeCode.Message.SystemMessage.ElicitationComplete
   alias ClaudeCode.Message.SystemMessage.FilesPersisted
+  alias ClaudeCode.Message.SystemMessage.Generic
   alias ClaudeCode.Message.SystemMessage.HookProgress
   alias ClaudeCode.Message.SystemMessage.HookResponse
   alias ClaudeCode.Message.SystemMessage.HookStarted
@@ -137,7 +138,11 @@ defmodule ClaudeCode.CLI.Parser do
       %{"type" => "system", "subtype" => subtype} when is_binary(subtype) ->
         case Map.fetch(@system_parsers, subtype) do
           {:ok, parser} -> parser.(data)
-          :error -> {:error, {:unknown_system_subtype, subtype}}
+          # Forward compatibility: a newer CLI may emit system-message subtypes
+          # this SDK version does not model yet (e.g. "thinking_tokens"). Return a
+          # Generic so the event is delivered with its full payload instead of
+          # being dropped as a parse error.
+          :error -> Generic.new(data)
         end
 
       %{"type" => "system"} ->
@@ -166,7 +171,6 @@ defmodule ClaudeCode.CLI.Parser do
   def parse_messages(messages) when is_list(messages) do
     reduce_parsed(messages, &parse_message/1, [
       :unknown_message_type,
-      :unknown_system_subtype,
       :unknown_event_type
     ])
   end
